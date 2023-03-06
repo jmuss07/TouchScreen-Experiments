@@ -2,10 +2,12 @@ import random
 import time
 
 import adafruit_rgb_display.ili9341 as ili9341
+import displayio
 import board
 import busio
 import digitalio
 from adafruit_rgb_display.rgb import color565
+displayio.release_displays() #set up for screen by releasing all used pins for new display
 
 # Configuratoin for CS and DC pins (these are FeatherWing defaults on M0/M4):
 tft_cs = board.D10
