@@ -1,9 +1,11 @@
+#type: ignore
+
+import gc
 import random
 import time
 
 import adafruit_focaltouch
 import adafruit_ili9341
-import adafruit_rgb_display.ili9341 as ili9341
 import board
 import busio
 import displayio
@@ -85,6 +87,7 @@ while True:
                 random_color = random.choice(color_list)
                 splash.remove(bg_sprite) #removes from display, saves storage space, important to do so code can run indefinitely
                 splash.remove(colorbutton) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(modebutton) #removes from display, saves storage space, important to do so code can run indefinitely
                 splash.remove(text_group) #removes from display, saves storage space, important to do so code can run indefinitely
                 color_bitmap = displayio.Bitmap(320, 240, 1)
                 color_palette = displayio.Palette(1)
@@ -105,8 +108,10 @@ while True:
             if y >= 190 and y <= 220 and x >= 20 and x <= 100 and color_mode==True and paint_mode==False:
                 color_mode = False
                 paint_mode = True
-                splash.remove(bg_sprite)
-                splash.remove(colorbutton)
+                splash.remove(bg_sprite) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(colorbutton) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(modebutton) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(text_group) #removes from display, saves storage space, important to do so code can run indefinitely
                 color_bitmap = displayio.Bitmap(320, 240, 1)
                 color_palette = displayio.Palette(1)
                 color_palette[0] = 0xAFAFAF
@@ -126,8 +131,12 @@ while True:
                 time.sleep(5)
                 '''
             if paint_mode==True and y < 155:
+                gc.collect()
                 random_color = random.choice(color_list)
                 rect = Rect(x-2, y-2, 10, 10, fill=random_color)
                 splash.append(rect)
     except OSError as error:
         pass
+    except MemoryError as error:
+        splash.remove(all)
+        
