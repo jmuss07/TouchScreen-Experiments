@@ -15,8 +15,8 @@ from adafruit_display_text import label
 from adafruit_rgb_display import color565
 
 displayio.release_displays() #set up for screen by releasing all used pins for new display
-# Use Hardware SPI
-spi = board.SPI()
+
+spi = busio.SPI(clock=board.D13, MOSI=board.D11, MISO=board.D12)
 
 tft_cs = board.D10
 tft_dc = board.D9
