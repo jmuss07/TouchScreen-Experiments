@@ -27,7 +27,7 @@ while True:
     for color in ((255, 0, 0), (0, 255, 0), (0, 0, 255)):
         display.fill(color565(color))
     # Clear the display
-    display.fill(0)
+    displayio.fill(0)
     # Draw a red pixel in the center.
     display.pixel(display.width // 2, display.height // 2, color565(255, 0, 0))
     # Pause 2 seconds.

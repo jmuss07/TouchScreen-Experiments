@@ -106,8 +106,6 @@ while True:
                 time.sleep(1)
 
             if y >= 190 and y <= 220 and x >= 20 and x <= 100 and color_mode==True and paint_mode==False:
-                color_mode = False
-                paint_mode = True
                 splash.remove(bg_sprite) #removes from display, saves storage space, important to do so code can run indefinitely
                 splash.remove(colorbutton) #removes from display, saves storage space, important to do so code can run indefinitely
                 splash.remove(modebutton) #removes from display, saves storage space, important to do so code can run indefinitely
@@ -122,21 +120,37 @@ while True:
                 divider = Rect(0, 165, 320, 3,  fill=0x000000)
                 splash.append(divider)
                 print("entering paint mode!")
+                color_mode = False
+                paint_mode = True
                 time.sleep(1)
 
-            '''if y >= 245 and y <= 270 and x >= 182 and x <= 224 and color_mode==False and paint_mode==True:
-                color_mode = True
-                paint_mode = False
-                print("entering color mode!")
-                time.sleep(5)
-                '''
             if paint_mode==True and y < 155:
                 gc.collect()
                 random_color = random.choice(color_list)
                 rect = Rect(x-2, y-2, 10, 10, fill=random_color)
                 splash.append(rect)
+            
+            if y >= 245 and y <= 270 and x >= 182 and x <= 224 and color_mode==False and paint_mode==True:
+                
+                print("entering color mode!")
+                splash.remove(bg_sprite) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(colorbutton) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(modebutton) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(divider) #removes from display, saves storage space, important to do so code can run indefinitely
+                splash.remove(text_group) #removes from display, saves storage space, important to do so code can run indefinitely
+                color_bitmap = displayio.Bitmap(320, 240, 1)
+                color_palette = displayio.Palette(1)
+                color_palette[0] = 0xAFAFAF
+                bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+                splash.append(bg_sprite)
+                modebutton = Rect(20, 190, 80, 30, fill=0x000000)#sets start coordinates, width, height, and fill color of the rectangle that will be the button to change screen modes
+                splash.append(modebutton) #adds to splash
+                color_mode = True
+                paint_mode = False
+                time.sleep(5)
+            
     except OSError as error:
         pass
-    except MemoryError as error:
-        splash.remove(all)
+   # except MemoryError as error:
+       # displayio.remove(splash)
         
