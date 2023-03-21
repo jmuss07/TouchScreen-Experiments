@@ -10,7 +10,9 @@ import board
 import busio
 import displayio
 import terminalio
+from math import sqrt
 from adafruit_display_shapes.rect import Rect
+from adafruit_display_shapes.polygon import Polygon
 from adafruit_display_text import label
 
 displayio.release_displays() #set up for screen by releasing all used pins for new display
@@ -54,9 +56,13 @@ text_area = label.Label(terminalio.FONT, text=text, color=0xAFAFAF) #adds text t
 text_group.append(text_area)  #subgroup for text scaling
 splash.append(text_group) #adds to splash
 
+line_bitmap = displayio.Bitmap(230, 170, 1)
+
 paint_mode = False
 color_mode = True
 last_mode_time = -10
+last_touch_time = 0
+last_touch = (0, 0)
 
 i2c = busio.I2C(board.SCL, board.SDA)
 ft = adafruit_focaltouch.Adafruit_FocalTouch(i2c)
@@ -87,6 +93,7 @@ while True:
             # The next two lines of code must be done in order to have focal touch and the TFT screen use the same origin
             y = point["x"]
             x = 320 - point["y"] 
+
             #print(f"{x} , {y}")
             if y >= 80 and y <= 160 and x >= 80 and x <= 240 and color_mode==True:
                 random_color = random.choice(color_list)
@@ -114,14 +121,32 @@ while True:
             if paint_mode==True and y < 155:
                 gc.collect()
                 rect_allowed = True #creates a variable to determine if a pixel has already been placed at a coordinate set, prevents unnecessary pixel placement
-                random_color = random.choice(color_list)
+                #random_color = random.choice(color_list)
                 for obj in splash:
                     if obj.y == y and obj.x == x:
                         rect_allowed = False
                         break
                 if rect_allowed:
-                    rect = Rect(x, y, 10, 10, fill=random_color)
+                    rect = Rect(x-3, y-3, 6, 6, fill=red)
+                    last_touch = (x-3, y-3)
                     splash.append(rect)
+                ''' if (time.monotonic() - last_touch_time <= 2): #and last_touch[0] - x <= 2 and last_touch[1] - y <= 2:
+                    #lots of geometry here to find points for polygon/connection line!
+                    slope = (y - last_touch[1])/(x - last_touch[0])
+                    perp_slope = -1/slope
+                    offset_vector = (1/(sqrt(1 + perp_slope**2)), perp_slope/(sqrt(1 + perp_slope**2)))
+                    offset = (int(offset_vector[0] * 3), int(offset_vector[1] * 3))
+                    polygon = Polygon(
+                        [
+                            (x + offset[0], y + offset[1]),
+                            (x - offset[0], y - offset[1]),
+                            (last_touch[0] - offset[0], last_touch[1] - offset[1]),
+                            (last_touch[0] + offset[0], last_touch[1] + offset[1])
+                        ],
+                        outline = red,
+                        fill = red
+                    )
+                    splash.append(polygon)'''
             
             if y >= 190 and y <= 220 and x >= 20 and x <= 100 and color_mode==False and paint_mode==True:
                 if(time.monotonic() - last_mode_time < 1):
@@ -144,7 +169,7 @@ while True:
                 print("entering color mode!")
                 color_mode = True
                 paint_mode = False
-            
+            #last_touch_time = time.monotonic()
     except OSError as error:
         pass
    # except MemoryError as error:
