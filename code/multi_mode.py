@@ -11,7 +11,7 @@ import busio
 import displayio
 import terminalio
 from adafruit_display_shapes.rect import Rect
-from adafruit_display_text import label
+from adafruit_display_text import label, wrap_text_to_lines
 
 displayio.release_displays() #set up for screen by releasing all used pins for new display
 
@@ -99,11 +99,11 @@ while True:
                 last_mode_time = time.monotonic()
                 for i in range(len(splash)-1, 2, -1): #goes through the contents of splash backwards until it reaches position [1], which is the second thing in the list. This ensures that it doesn't remove the background, mode button, or mode button label
                      splash.pop(i) #goes through splash and removes everything else from display, saves memory, important to do so code can run indefinitely
-                modebutton.hidden = True #hides mode button for a smoother transition between modes
-                mode_label.hidden = True #hides mode button label for smoother transition between modes
+                for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+                    splash[i].hidden = True #goes through splash and hides everything on the display for smoother transition between modes
                 time.sleep(.1)
-                modebutton.hidden = False #shows mode button for a smoother transition between modes
-                mode_label.hidden = False #shows mode button label for smoother transition between modes
+                for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+                    splash[i].hidden = False #goes through splash and shows everything on the display for smoother transition between modes
                 color_palette[0] = 0xAFAFAF #changes the color of the background
                 divider = Rect(0, 165, 320, 3,  fill=0x000000)
                 splash.append(divider)
@@ -129,11 +129,11 @@ while True:
                 last_mode_time = time.monotonic()
                 for i in range(len(splash)-1, 2, -1): #goes through the contents of splash backwards until it reaches postition [1], which is the second thing in the list. This ensures that it doesn't remove the background, mode button, or mode button label
                      splash.pop(i) #goes through splash and removes everything else from display, saves memory, important to do so code can run indefinitely
-                modebutton.hidden = True #hides mode button for a smoother transition between modes
-                mode_label.hidden = True #hides mode button label for smoother transition between modes
+                for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+                    splash[i].hidden = True #goes through splash and hides everything on the display for smoother transition between modes
                 time.sleep(.1)
-                modebutton.hidden = False #shows mode button for a smoother transition between modes
-                mode_label.hidden = False #shows mode button label for smoother transition between modes
+                for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+                    splash[i].hidden = False #goes through splash and shows everything on the display for smoother transition between modes
                 colorbutton = Rect(80, 80, 160, 80, fill=0x000000)#sets start coordinates, width, height, and fill color of the rectangle that will be the button to trigger the color-change of the background
                 splash.append(colorbutton) #adds to splash
                 text_group = displayio.Group(scale=3, x=100, y=115) #sets size and start position of message
@@ -147,6 +147,22 @@ while True:
             
     except OSError as error:
         pass
-   # except MemoryError as error:
-       # displayio.remove(splash)
+    except MemoryError as error:
+        last_clear_time = time.monotonic() #sets variable to new current time for future use!
+        for i in range(len(splash)-1, 7, -1): #goes through the contents of splash backwards until it reaches position [7], which is the eighth thing in the list. This ensures that it doesn't remove the background or any of the buttons and button labels. It will only clear the screen of painted pixels!
+            splash.pop(i) #goes through splash and removes everything else from display, saves memory, important to do so code can run indefinitely
+        for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+             splash[i].hidden = True #goes through splash and hides everything but background
+        color_palette[0] = 0x060011 #changes the color of the background
+        error_text = displayio.Group(scale=2, x=10, y=80) #sets size and start position of message
+        text = "Sorry! I'm out of memory! Please stand by while I clear the screen!"
+        text = "\n".join(wrap_text_to_lines(text, 25)) #wraps the message onto multiple lines, which reduces the number of text functions used, while still allowing long messages to show up and look nice!
+        text_area = label.Label(terminalio.FONT, text=text, color=0xFAFAFC) #adds text to label button to display group
+        error_text.append(text_area)  #subgroup for text scaling
+        splash.append(error_text) #adds to splash
+        time.sleep(2.5)
+        splash.remove(error_text) #removes error message from screen, saves storage
+        for i in range(1, len(splash)): #goes through the contents of splash starting at postion [1], which is the second thing in the list (and first thing after the background)
+            splash[i].hidden = False #goes through splash and shows everything on the display
+        color_palette[0] = 0xAFAFAF #changes the color of the background
         
